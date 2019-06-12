@@ -1,7 +1,10 @@
 const request = require("request-promise");
 const cheerio = require("cheerio");
 const fs = require("fs");
-//const nightmare = require('nigthmare')
+//const nightmare = require('nightmare');
+const Nightmare = require('nightmare');
+
+const nightmare = Nightmare({ show : false });
 
 const url = "https://charlottenc.gov/Engineering/Bids/Pages/default.aspx";
 
@@ -35,20 +38,21 @@ async function scrapeInnerPages(validUrls) {
   });
 }*/
 
-async function scrapeInnerPages(validUrls){
-  for (let i = 0; i < validLinks.length; i++){
-
-          const results = await nightmare.goto(validUrls[i]).evaluate(() => $("table.solicitationTable > tbody > tr").map(
-            (i, element) => {
-                const tdsInRow = $(element).find("td");
-                //the first td is the "column name", eg. Type, Department, Bid date etc., second td is the data itself
-                const columnName = tdsInRow[0];
-                const data = tdsInRow[1];
-                console.log(`td0: ${columnName}`);
-                console.log(`td1: ${data}`);
-                return { columnName: data };
-          }
-        }
+async function scrapeInnerPages(validUrls) {
+  for (let i = 0; i < validUrls.length; i++) {
+    const results = await nightmare.goto(validUrls[i]).evaluate(() =>
+      $("table.solicitationTable > tbody > tr").map((i, element) => {
+        const tdsInRow = $(element).find("td");
+        //the first td is the "column name", eg. Type, Department, Bid date etc., second td is the data itself
+        const columnName = tdsInRow[0];
+        const data = tdsInRow[1];
+        console.log(`td0: ${columnName}`);
+        console.log(`td1: ${data}`);
+        return { columnName: data };
+      })
+    );
+  }
+}
 
 function createValidUrl(url) {
   return `https://charlottenc.gov/DoingBusiness/Pages/SolicitationDetails.aspx?ID=${url.substring(
